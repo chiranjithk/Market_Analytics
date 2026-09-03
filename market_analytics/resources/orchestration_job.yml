@@ -1,0 +1,56 @@
+resources:
+  jobs:
+    daily_bronze_silver_job:
+      name: daily_bronze_silver_job
+      tasks:
+        - task_key: Equity_master
+          notebook_task:
+            notebook_path: ../src/stock-lakehouse_notebooks/masters/load_equity_master.ipynb
+            source: WORKSPACE
+        - task_key: Etf_master
+          notebook_task:
+            notebook_path: ../src/stock-lakehouse_notebooks/masters/load_etf_master.ipynb
+            source: WORKSPACE
+        - task_key: ETF_prices
+          depends_on:
+            - task_key: Etf_master
+          notebook_task:
+            notebook_path: ../src/stock-lakehouse_notebooks/market_data/ingest_etf_prices.ipynb
+            source: WORKSPACE
+        - task_key: index_master
+          notebook_task:
+            notebook_path: ../src/stock-lakehouse_notebooks/masters/load_index_master.ipynb
+            source: WORKSPACE
+        - task_key: Index_prices
+          depends_on:
+            - task_key: index_master
+          notebook_task:
+            notebook_path: ../src/stock-lakehouse_notebooks/market_data/ingest_index_prices.ipynb
+            source: WORKSPACE
+        - task_key: mf_schemes
+          notebook_task:
+            notebook_path: ../src/stock-lakehouse_notebooks/mutual_funds/ingest_mf_scheme_master.ipynb
+            source: WORKSPACE
+        - task_key: mf_nav
+          depends_on:
+            - task_key: mf_schemes
+          notebook_task:
+            notebook_path: ../src/stock-lakehouse_notebooks/mutual_funds/ingest_mf_nav.ipynb
+            source: WORKSPACE
+        - task_key: stock_prices
+          depends_on:
+            - task_key: Equity_master
+          notebook_task:
+            notebook_path: ../src/stock-lakehouse_notebooks/market_data/ingest_stock_prices.ipynb
+            source: WORKSPACE
+        - task_key: silver_pipeline
+          depends_on:
+            - task_key: Index_prices
+            - task_key: ETF_prices
+            - task_key: stock_prices
+            - task_key: mf_nav
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.pipeline_silver_gold_pipeline.id}
+      queue:
+        enabled: true
+      performance_target: PERFORMANCE_OPTIMIZED

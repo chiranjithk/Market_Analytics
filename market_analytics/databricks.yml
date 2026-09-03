@@ -1,0 +1,25 @@
+bundle:
+  name: market_analytics
+  uuid: 2092cdbe-dd6e-4826-81b7-4a9a60aeba90
+
+include:
+  - resources/*.yml
+  - resources/*/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: dbc-e6eafcf2-2657.cloud.databricks.com
+    presets:
+      name_prefix: ${workspace.current_user.short_name}
+      source_linked_deployment: false
+  prod:
+    mode: production
+    workspace:
+      host: dbc-e6eafcf2-2657.cloud.databricks.com
+      root_path: /Workspace/PROD/.bundle/${bundle.name}/${bundle.target}
+    permissions:
+      - user_name: chiranjithk04@gmail.com
+        level: CAN_MANAGE

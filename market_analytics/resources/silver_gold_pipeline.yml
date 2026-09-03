@@ -1,0 +1,15 @@
+resources:
+  pipelines:
+    pipeline_silver_gold_pipeline:
+      name: silver_gold_pipeline
+      libraries:
+        - glob:
+            include: ../src/silver_gold_pipeline_dab/transformations/**
+      schema: silver
+      continuous: false
+      development: false
+      photon: true
+      channel: CURRENT
+      catalog: stock_market
+      serverless: true
+      root_path: ../src/silver_gold_pipeline_dab
